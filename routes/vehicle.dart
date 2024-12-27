@@ -43,14 +43,18 @@ Future<Response> onRequest(RequestContext context) async {
       if (vehicleNumber == null) {
         return Response(statusCode: 400);
       }
-      //TODO 사용자의 번호판이 이미 (타인 또는 나)등록되어있으면 response status code: 409(conflict)
-      // 그게 아니라면 map["userId"]에 요청 받은 vehicle번호를 넣어준다.
-      print(decodedBody['vehicle']);
+      // 사용자의 번호판이 이미 (타인 또는 나)등록되어있으면 response status code: 409(conflict)
+      if (data.containsValue(vehicleNumber)) {
+        return Response(statusCode: 409);
+      }
+      // 그게 아니라면 map["userId"]에 요청 받은 vehicle번호ß를 넣어준다.
+      data[userId.toString()] = vehicleNumber.toString();
       return Response.json(
         statusCode: 201,
-        body: {'차량번호': decodedBody['vehicle']},
+        body: {'차량번호': vehicleNumber},
       );
     } catch (e) {
+      print(e);
       return Response.json(statusCode: 400);
     }
   }
