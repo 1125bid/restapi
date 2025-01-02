@@ -82,14 +82,44 @@ Future<Response> onRequest(RequestContext context) async {
     }
     //string 타입으로 지정. 데이터 값에 수정한 데이터 값 넣기
     data[userId.toString()] = vehicleNumber.toString();
-    return Response.json(body: {
-      'vehicleNumber': [
-        vehicleNumber.toString() //  변경할 차량 번호 리스트
-      ]
-    });
+    return Response.json(
+      body: {
+        'vehicleNumber': [
+          vehicleNumber.toString() //  변경할 차량 번호 리스트
+        ]
+      },
+    );
+  }
+  //차량번호 삭제
+  if (method == HttpMethod.delete) {
+    //유저 아이디 갖고오기
+    final body = await context.request.body();
+    final decodedBody = jsonDecode(body);
+    final userId = decodedBody['userId'];
+    //유저 아이디가 없는 경우
+    if (userId == null) {
+      return Response(statusCode: 400);
+    }
+    //차량번호 갖고오기
+    final vehicleNumber = decodedBody['vehicleNumber'];
+    //차량번호가 없는 경우
+    if (vehicleNumber == null) {
+      return Response(statusCode: 400);
+    }
+    //useId의 데이터 값이 request 받은 vehicleNumber와 같은지 확인.
+    if (data[userId] != vehicleNumber) {
+      return Response(statusCode: 409);
+    }
+//userId 통해서 차량번호 삭제
+    data.remove(userId);
+    return Response.json(
+      body: {
+        'vehicleNumber': [
+          vehicleNumber.toString() //  삭제된 번호판
+        ],
+      },
+    );
   }
   print(context.request.method.value);
-  return Response.json(body: {
-    'name': '김진용',
-  });
+  return Response(statusCode: 405);
 }
